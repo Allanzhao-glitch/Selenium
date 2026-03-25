@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selenium 练习 - 用户管理系统</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Selenium 练习专用样式 */
+        .selenium-demo {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .element-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .element-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .element-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .element-examples {
+            margin: 1rem 0;
+        }
+
+        .element-examples input,
+        .element-examples select,
+        .element-examples button {
+            margin: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .hidden-element {
+            display: none;
+            background: #ffeb3b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        .draggable-item {
+            background: #4CAF50;
+            color: white;
+            padding: 1rem;
+            margin: 0.5rem;
+            border-radius: 8px;
+            cursor: move;
+            display: inline-block;
+        }
+
+        .drop-zone {
+            border: 2px dashed #ccc;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .test-data {
+            background: #e3f2fd;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .locator-examples {
+            background: #f3e5f5;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .locator-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .interactive-demo {
+            background: #fff3e0;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .hover-demo {
+            background: #e1f5fe;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .hover-demo:hover {
+            background: #b3e5fc;
+            transform: scale(1.02);
+        }
+
+        .dynamic-content {
+            background: #fce4ec;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Selenium 练习 - 用户管理系统</div>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="login.html">登录</a>
+            <a href="register.html">注册</a>
+            <a href="profile.html">个人资料</a>
+            <a href="selenium-demo.html">Selenium 练习</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="selenium-demo">
+            <h1>🤖 Selenium 自动化练习专区</h1>
+            <p>这里是专门为 Selenium 练习设计的页面，包含各种元素类型和交互场景</p>
+        </div>
+
+        <div class="test-data">
+            <h2>📊 测试数据</h2>
+            <p>使用以下测试账号进行 Selenium 练习：</p>
+            <ul>
+                <li><strong>用户名:</strong> test_user | <strong>密码:</strong> test123 | <strong>邮箱:</strong> test@example.com</li>
+                <li><strong>用户名:</strong> demo_user | <strong>密码:</strong> demo123 | <strong>邮箱:</strong> demo@example.com</li>
+                <li><strong>用户名:</strong> selenium | <strong>密码:</strong> selenium123 | <strong>邮箱:</strong> selenium@example.com</li>
+            </ul>
+        </div>
+
+        <div class="locator-examples">
+            <h2>🎯 元素定位练习</h2>
+            <p>尝试使用不同的定位方式找到这些元素：</p>
+            
+            <div class="element-types">
+                <div class="element-card">
+                    <h3>ID 定位</h3>
+                    <input type="text" id="username-input" placeholder="通过 ID 定位">
+                    <button id="submit-btn">通过 ID 定位的按钮</button>
+                </div>
+                
+                <div class="element-card">
+                    <h3>Class 定位</h3>
+                    <input type="text" class="form-input email-field" placeholder="通过 class 定位">
+                    <button class="primary-button action-btn">通过 class 定位的按钮</button>
+                </div>
+                
+                <div class="element-card">
+                    <h3>Name 定位</h3>
+                    <input type="text" name="phone-number" placeholder="通过 name 定位">
+                    <select name="country-select">
+                        <option value="cn">中国</option>
+                        <option value="us">美国</option>
+                        <option value="jp">日本</option>
+                    </select>
+                </div>
+                
+                <div class="element-card">
+                    <h3>XPath 定位</h3>
+                    <div data-testid="user-profile">data-testid 属性</div>
+                    <input type="checkbox" data-feature="newsletter" id="newsletter">
+                    <label for="newsletter">订阅新闻</label>
+                </div>
+            </div>
+
+            <div class="locator-code">
+                <h4>定位示例代码：</h4>
+                <div># ID 定位</div>
+                <div>driver.find_element(By.ID, "username-input")</div>
+                <div># Class 定位</div>
+                <div>driver.find_element(By.CLASS_NAME, "form-input")</div>
+                <div># XPath 定位</div>
+                <div>driver.find_element(By.XPATH, "//input[@data-testid='user-profile']")</div>
+                <div># CSS Selector 定位</div>
+                <div>driver.find_element(By.CSS_SELECTOR, "input[data-feature='newsletter']")</div>
+            </div>
+        </div>
+
+        <div class="interactive-demo">
+            <h2>🖱️ 交互操作练习</h2>
+            
+            <div class="element-card">
+                <h3>点击事件</h3>
+                <button id="click-btn" class="btn btn-primary">点击我</button>
+                <div id="click-result" style="margin-top: 1rem; padding: 1rem; background: #f0f0f0; border-radius: 8px;">点击按钮查看结果</div>
+            </div>
+
+            <div class="element-card">
+                <h3>输入和清除</h3>
+                <input type="text" id="dynamic-input" placeholder="输入一些文字">
+                <button id="clear-btn" class="btn btn-secondary">清除输入</button>
+                <button id="fill-btn" class="btn btn-primary">填充测试数据</button>
+                <div id="input-result" style="margin-top: 1rem;">输入框内容会显示在这里</div>
+            </div>
+
+            <div class="element-card">
+                <h3>下拉选择</h3>
+                <select id="dynamic-select">
+                    <option value="">请选择</option>
+                    <option value="option1">选项 1</option>
+                    <option value="option2">选项 2</option>
+                    <option value="option3">选项 3</option>
+                </select>
+                <div id="select-result" style="margin-top: 1rem;">选择结果会显示在这里</div>
+            </div>
+
+            <div class="element-card">
+                <h3>复选框和单选按钮</h3>
+                <div>
+                    <input type="checkbox" id="check1" class="test-checkbox">
+                    <label for="check1">复选框 1</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="check2" class="test-checkbox">
+                    <label for="check2">复选框 2</label>
+                </div>
+                <div>
+                    <input type="radio" name="test-radio" id="radio1" value="1">
+                    <label for="radio1">单选 1</label>
+                </div>
+                <div>
+                    <input type="radio" name="test-radio" id="radio2" value="2">
+                    <label for="radio2">单选 2</label>
+                </div>
+                <div id="checkbox-result" style="margin-top: 1rem;">选择结果会显示在这里</div>
+            </div>
+        </div>
+
+        <div class="dynamic-content">
+            <h2>⏱️ 动态内容练习</h2>
+            
+            <div class="element-card">
+                <h3>延迟显示的元素</h3>
+                <button id="show-delayed" class="btn btn-primary">显示隐藏元素</button>
+                <button id="hide-delayed" class="btn btn-secondary">隐藏元素</button>
+                <div id="delayed-element" class="hidden-element">
+                    这是一个延迟显示的元素！使用 Selenium 的等待机制来找到我。
+                </div>
+            </div>
+
+            <div class="element-card">
+                <h3>AJAX 加载内容</h3>
+                <button id="load-content" class="btn btn-primary">加载内容</button>
+                <div id="loading-container" style="margin-top: 1rem;">
+                    <!-- 动态内容将在这里加载 -->
+                </div>
+            </div>
+
+            <div class="element-card">
+                <h3>定时器自动消失</h3>
+                <button id="show-timer" class="btn btn-primary">显示定时元素</button>
+                <div id="timer-element" class="hidden-element">
+                    我将在 5 秒后自动消失！
+                </div>
+            </div>
+        </div>
+
+        <div class="hover-demo">
+            <h2>🎯 悬停和其他事件</h2>
+            <p>将鼠标悬停在我上面试试</p>
+            <div class="element-card">
+                <div id="hover-target" style="padding: 2rem; background: #e8f5e8; border-radius: 8px; text-align: center;">
+                    悬停在我上面会显示隐藏内容
+                    <div id="hover-content" style="display: none; margin-top: 1rem; padding: 1rem; background: #4CAF50; color: white; border-radius: 8px;">
+                        你发现了隐藏内容！
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="drag-drop-demo">
+            <h2>🖐️ 拖拽练习</h2>
+            <p>将下面的元素拖拽到目标区域：</p>
+            <div class="draggable-item" draggable="true" id="drag1">拖拽我 1</div>
+            <div class="draggable-item" draggable="true" id="drag2">拖拽我 2</div>
+            <div class="draggable-item" draggable="true" id="drag3">拖拽我 3</div>
+            
+            <div id="drop-zone" class="drop-zone">
+                将元素拖拽到这里
+            </div>
+            <div id="drop-result" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="alert-demo">
+            <h2>🚨 弹窗处理练习</h2>
+            <button id="alert-btn" class="btn btn-warning">显示警告框</button>
+            <button id="confirm-btn" class="btn btn-info">显示确认框</button>
+            <button id="prompt-btn" class="btn btn-secondary">显示输入框</button>
+            <div id="alert-result" style="margin-top: 1rem; padding: 1rem; background: #f0f0f0; border-radius: 8px;">
+                弹窗结果会显示在这里
+            </div>
+        </div>
+
+        <div class="frame-demo">
+            <h2>🖼️ 框架切换练习</h2>
+            <iframe id="test-frame" src="frame-content.html" width="100%" height="300" style="border: 2px solid #ccc; border-radius: 8px;"></iframe>
+            <div style="margin-top: 1rem;">
+                <button id="frame-btn" class="btn btn-primary">与框架内元素交互</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // 交互事件处理
+        document.getElementById('click-btn').addEventListener('click', function() {
+            document.getElementById('click-result').textContent = '按钮被点击了！时间：' + new Date().toLocaleTimeString();
+            this.style.backgroundColor = '#4CAF50';
+            this.textContent = '已点击';
+        });
+
+        // 输入框事件
+        const dynamicInput = document.getElementById('dynamic-input');
+        const inputResult = document.getElementById('input-result');
+        
+        dynamicInput.addEventListener('input', function() {
+            inputResult.textContent = '当前输入：' + this.value;
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            dynamicInput.value = '';
+            inputResult.textContent = '输入框已清空';
+        });
+
+        document.getElementById('fill-btn').addEventListener('click', function() {
+            dynamicInput.value = '这是测试数据 ' + Math.random().toString(36).substr(2, 5);
+            inputResult.textContent = '已填充测试数据';
+        });
+
+        // 下拉选择事件
+        document.getElementById('dynamic-select').addEventListener('change', function() {
+            document.getElementById('select-result').textContent = 
+                this.value ? '你选择了：' + this.options[this.selectedIndex].text : '请选择一项';
+        });
+
+        // 复选框和单选按钮事件
+        document.querySelectorAll('.test-checkbox, input[name="test-radio"]').forEach(element => {
+            element.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.test-checkbox:checked');
+                const radios = document.querySelectorAll('input[name="test-radio"]:checked');
+                
+                let result = '';
+                if (checkboxes.length > 0) {
+                    result += '选中的复选框：' + Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent).join(', ') + ' ';
+                }
+                if (radios.length > 0) {
+                    result += '选中的单选：' + radios[0].nextElementSibling.textContent;
+                }
+                
+                document.getElementById('checkbox-result').textContent = result || '未选择';
+            });
+        });
+
+        // 动态元素显示/隐藏
+        document.getElementById('show-delayed').addEventListener('click', function() {
+            const element = document.getElementById('delayed-element');
+            element.style.display = 'block';
+            element.style.opacity = '0';
+            setTimeout(() => {
+                element.style.transition = 'opacity 0.5s';
+                element.style.opacity = '1';
+            }, 100);
+        });
+
+        document.getElementById('hide-delayed').addEventListener('click', function() {
+            document.getElementById('delayed-element').style.display = 'none';
+        });
+
+        // AJAX 内容加载
+        document.getElementById('load-content').addEventListener('click', function() {
+            const container = document.getElementById('loading-container');
+            container.innerHTML = '<div class="loading-spinner"></div>';
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px;">
+                        <h4>动态加载的内容</h4>
+                        <p>这是通过模拟 AJAX 加载的内容！</p>
+                        <div data-loaded="true">测试数据</div>
+                        <button class="btn btn-primary">动态按钮</button>
+                    </div>
+                `;
+            }, 2000);
+        });
+
+        // 定时器元素
+        document.getElementById('show-timer').addEventListener('click', function() {
+            const element = document.getElementById('timer-element');
+            element.classList.remove('hidden-element');
+            
+            setTimeout(() => {
+                element.classList.add('hidden-element');
+            }, 5000);
+        });
+
+        // 悬停事件
+        document.getElementById('hover-target').addEventListener('mouseenter', function() {
+            document.getElementById('hover-content').style.display = 'block';
+        });
+
+        document.getElementById('hover-target').addEventListener('mouseleave', function() {
+            document.getElementById('hover-content').style.display = 'none';
+        });
+
+        // 拖拽功能
+        let draggedElement = null;
+
+        document.querySelectorAll('.draggable-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.style.opacity = '0.5';
+            });
+
+            item.addEventListener('dragend', function(e) {
+                this.style.opacity = '1';
+            });
+        });
+
+        const dropZone = document.getElementById('drop-zone');
+        
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (draggedElement) {
+                this.innerHTML = `<div style="background: #4CAF50; color: white; padding: 1rem; border-radius: 8px;">已放置：${draggedElement.textContent}</div>`;
+                document.getElementById('drop-result').textContent = '成功拖拽：' + draggedElement.textContent;
+            }
+        });
+
+        // 弹窗处理
+        document.getElementById('alert-btn').addEventListener('click', function() {
+            alert('这是一个警告框！');
+            document.getElementById('alert-result').textContent = '警告框已关闭';
+        });
+
+        document.getElementById('confirm-btn').addEventListener('click', function() {
+            const result = confirm('这是一个确认框，你确定吗？');
+            document.getElementById('alert-result').textContent = '确认框结果：' + (result ? '确定' : '取消');
+        });
+
+        document.getElementById('prompt-btn').addEventListener('click', function() {
+            const result = prompt('请输入一些文字：', '默认值');
+            document.getElementById('alert-result').textContent = '输入框结果：' + (result || '取消输入');
+        });
+
+        // 框架交互
+        document.getElementById('frame-btn').addEventListener('click', function() {
+            const frame = document.getElementById('test-frame');
+            // 这里可以添加与框架内元素的交互逻辑
+            alert('在实际测试中，你需要先切换到框架，然后与框架内的元素交互');
+        });
+    </script>
+</body>
+</html>

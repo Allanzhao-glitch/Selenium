@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人资料 - 用户管理系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">用户管理系统</div>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <span id="userDisplay"></span>
+            <a href="#" id="logoutBtn">退出</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-container">
+            <h2>个人资料</h2>
+            <div id="profileInfo" class="profile-info">
+                <p><strong>用户名：</strong><span id="profileUsername">-</span></p>
+                <p><strong>邮箱：</strong><span id="profileEmail">-</span></p>
+                <p><strong>姓名：</strong><span id="profileName">-</span></p>
+                <p><strong>用户ID：</strong><span id="profileId">-</span></p>
+            </div>
+
+            <div class="profile-actions">
+                <button id="editBtn" class="btn btn-primary">编辑资料</button>
+                <button id="deleteBtn" class="btn btn-danger">删除账号</button>
+            </div>
+
+            <form id="editForm" class="edit-form" style="display: none;">
+                <h3>编辑资料</h3>
+                <div class="form-group">
+                    <label for="editEmail">邮箱</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editName">姓名</label>
+                    <input type="text" id="editName">
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">新密码（留空则不修改）</label>
+                    <input type="password" id="editPassword">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" id="cancelEditBtn" class="btn btn-secondary">取消</button>
+                </div>
+            </form>
+
+            <div id="message" class="message"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        let currentUser = null;
+
+        function checkAuth() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(userStr);
+        }
+
+        function initProfile() {
+            currentUser = checkAuth();
+            if (!currentUser) return;
+
+            document.getElementById('userDisplay').textContent = currentUser.username;
+            document.getElementById('profileUsername').textContent = currentUser.username;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileName').textContent = currentUser.full_name || '未设置';
+            document.getElementById('profileId').textContent = currentUser.id;
+
+            document.getElementById('editEmail').value = currentUser.email;
+            document.getElementById('editName').value = currentUser.full_name || '';
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        });
+
+        document.getElementById('editBtn').addEventListener('click', () => {
+            document.getElementById('editForm').style.display = 'block';
+            document.getElementById('editBtn').style.display = 'none';
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('editBtn').style.display = 'inline-block';
+        });
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageDiv = document.getElementById('message');
+            const email = document.getElementById('editEmail').value;
+            const full_name = document.getElementById('editName').value;
+            const password = document.getElementById('editPassword').value;
+
+            try {
+                const response = await fetch(`http://localhost:8000/api/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: currentUser.username,
+                        email, 
+                        password: password || currentUser.password,
+                        full_name 
+                    })
+                });
+
+                if (response.ok) {
+                    const updatedUser = await response.json();
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+                    messageDiv.className = 'message success';
+                    messageDiv.textContent = '资料更新成功！';
+                    setTimeout(() => initProfile(), 1000);
+                } else {
+                    const data = await response.json();
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = data.detail || '更新失败';
+                }
+            } catch (error) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = '网络错误';
+            }
+
+            document.getElementById('editForm').style.display = 'none';
+            document.getElementById('editBtn').style.display = 'inline-block';
+            document.getElementById('editPassword').value = '';
+        });
+
+        document.getElementById('deleteBtn').addEventListener('click', async () => {
+            if (!confirm('确定要删除账号吗？此操作不可恢复！')) return;
+            
+            const messageDiv = document.getElementById('message');
+
+            try {
+                const response = await fetch(`http://localhost:8000/api/users/${currentUser.id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    alert('账号已删除');
+                    window.location.href = 'index.html';
+                } else {
+                    const data = await response.json();
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = data.detail || '删除失败';
+                }
+            } catch (error) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = '网络错误';
+            }
+        });
+
+        initProfile();
+    </script>
+</body>
+</html>

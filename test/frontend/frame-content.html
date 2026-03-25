@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>框架内内容 - Selenium 练习</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #e8f5e8 0%, #e3f2fd 100%);
+        }
+        
+        .frame-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .frame-input {
+            margin: 1rem 0;
+        }
+        
+        .frame-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .frame-input input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .frame-input input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .frame-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.5rem 0;
+        }
+        
+        .frame-button:hover {
+            background: #5568d3;
+        }
+        
+        #frame-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 5px;
+            min-height: 50px;
+        }
+        
+        .frame-element {
+            background: #fff3e0;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffa500;
+        }
+    </style>
+</head>
+<body>
+    <div class="frame-content">
+        <h2>🖼️ 框架内的内容</h2>
+        <p>这是一个嵌套在 iframe 中的页面，用于练习 Selenium 的框架切换操作。</p>
+        
+        <div class="frame-element">
+            <h3>练习项目</h3>
+            <div class="frame-input">
+                <label for="frame-username">用户名：</label>
+                <input type="text" id="frame-username" placeholder="在框架内输入用户名">
+            </div>
+            
+            <div class="frame-input">
+                <label for="frame-password">密码：</label>
+                <input type="password" id="frame-password" placeholder="在框架内输入密码">
+            </div>
+            
+            <button class="frame-button" id="frame-submit">框架内登录按钮</button>
+            <button class="frame-button" id="frame-clear">清空</button>
+        </div>
+        
+        <div id="frame-result">
+            操作结果将显示在这里...
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('frame-submit').addEventListener('click', function() {
+            const username = document.getElementById('frame-username').value;
+            const password = document.getElementById('frame-password').value;
+            
+            if (username && password) {
+                document.getElementById('frame-result').textContent = 
+                    '提交成功！用户名：' + username;
+            } else {
+                document.getElementById('frame-result').textContent = '请填写用户名和密码';
+            }
+        });
+        
+        document.getElementById('frame-clear').addEventListener('click', function() {
+            document.getElementById('frame-username').value = '';
+            document.getElementById('frame-password').value = '';
+            document.getElementById('frame-result').textContent = '已清空';
+        });
+    </script>
+</body>
+</html>
